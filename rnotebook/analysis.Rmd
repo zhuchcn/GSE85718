@@ -1,0 +1,167 @@
+---
+title: "GSE85718"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+library(Biobase); library(GEOquery)
+```
+
+## Get GSE85718 data
+
+```{r}
+gset <- getGEO("GSE85718", GSEMatrix =TRUE, getGPL=TRUE)
+gset = gset[[1]]
+save(gset, file = "../GSE85718.rda")
+```
+
+Below shows that the GSE85718 has 25697 features and 8 samples
+
+```{r}
+gset
+```
+
+The sample meta-data has 40 variables. Below is the first 6 rows (samples).
+
+```{r}
+head(pData(gset))
+```
+
+The study design information seems to be stored in the `source_name_ch1` column. There are 12 treatment/groups, and 4 samples in each treatment.
+
+```{r}
+table(pData(gset)$source_name_ch1)
+```
+
+The feature data has 28 columns/variables. Below is the first 6 rows. The `Symbol` column is the common abbreviate. The `Definition` column has more information about this transcript.
+
+```{r}
+head(fData(gset))
+```
+
+## Glycosyltransferase
+
+I search on PubMed database, with the keywords **(glycosyltransferases) AND "Mus musculus"**, and downloaded 39 records.
+
+```{r}
+glycotrans_list = read.table("../glycotransferase_gene_list.txt", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+glycotrans_list
+```
+
+I cross searched those 39 genes in this dataset, and found 10 matches. Below is the feature information data of them.
+
+```{r}
+gs = which(fData(gset)$Symbol %in% glycotrans_list$Symbol)
+fData(gset)[gs,]
+```
+
+Then for each individual feature, I made a boxplot, with treatment/group (the `source_name_ch1` column) in the x axis.
+
+```{r}
+library(ggplot2); library(dplyr)
+makeBoxPlot = function(i){
+    gene_name = glycotrans_list$description[which(glycotrans_list$Symbol == fData(gset)$Symbol[i])]
+    data.frame(
+        value = exprs(gset)[i,],
+        source = pData(gset)$source_name_ch1
+    ) %>%
+        ggplot(aes(x = source, y =value)) +
+        geom_boxplot() +
+        labs(title = gene_name) +
+        theme_bw() +
+        theme(
+            axis.text.x = element_text(angle = 45, hjust = 1),
+            plot.title = element_text(hjust = 0.5)
+        )
+}
+makeBoxPlot(gs[1])
+```
+
+```{r}
+makeBoxPlot(gs[2])
+```
+
+```{r}
+makeBoxPlot(gs[3])
+```
+
+```{r}
+makeBoxPlot(gs[4])
+```
+
+```{r}
+makeBoxPlot(gs[5])
+```
+
+```{r}
+makeBoxPlot(gs[6])
+```
+
+```{r}
+makeBoxPlot(gs[7])
+```
+
+```{r}
+makeBoxPlot(gs[8])
+```
+
+```{r}
+makeBoxPlot(gs[9])
+```
+
+
+```{r}
+makeBoxPlot(gs[10])
+```
+
+
+## ABCA1
+
+```{r}
+gs = which(fData(gset)$Symbol == "Abca1")
+makeBoxPlot = function(i){
+    data.frame(
+        value = exprs(gset)[i,],
+        source = pData(gset)$source_name_ch1
+    ) %>%
+        ggplot(aes(x = source, y =value)) +
+        geom_boxplot() +
+        theme_bw() +
+        theme(
+            axis.text.x = element_text(angle = 45, hjust = 1),
+            plot.title = element_text(hjust = 0.5)
+        )
+}
+makeBoxPlot(gs) + labs(title = "ABCA1")
+```
+
+## ApoA1
+
+```{r}
+gs = which(fData(gset)$Symbol == "Apoa1")
+makeBoxPlot(gs) + labs(title = "ApoA1")
+```
+
+## GALNT2
+
+There are three **GALNT2** in this dataset.
+
+```{r}
+gs = which(fData(gset)$Symbol == "Galnt2")
+fData(gset)[gs,]
+```
+
+```{r}
+makeBoxPlot(gs[1])
+```
+
+```{r}
+makeBoxPlot(gs[2])
+```
+
+```{r}
+makeBoxPlot(gs[3])
+```
+

@@ -1,0 +1,110 @@
+---
+title: "GSE"
+author: "Chenghao Zhu"
+date: "3/2/2019"
+output: html_document
+runtime: shiny
+---
+
+<style>
+table {
+  white-space: nowrap;
+}
+.datatables {
+  overflow: auto;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r, include=FALSE}
+pkgs = c("dplyr", "reshape2", "glue", "ggplot2", "Biobase", "DT", "plotly")
+for(pkg in pkgs) library(pkg, character.only = TRUE)
+```
+
+```{r}
+load("../../GSE85718.rda")
+```
+
+## Glycosyltransferase
+
+I search on PubMed database, with the keywords **(glycosyltransferases) AND "Mus musculus"**, and downloaded 39 records.
+
+```{r}
+glycotrans_list = read.table("../../glycotransferase_gene_list.txt", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+datatable(glycotrans_list)
+```
+
+I cross searched those 39 genes in this dataset, and found 10 matches. Below is the feature information data of them.
+
+```{r}
+gs = which(fData(gset)$Symbol %in% glycotrans_list$Symbol)
+
+fdata_sub = fData(gset)[gs,]
+output$glyco = renderDataTable(
+  fdata_sub,
+  selection = list(mode = "single", selected = 1),
+  server=T
+)
+dataTableOutput("glyco")
+```
+
+```{r}
+makeBoxPlot = function(i){
+    data.frame(
+        value = exprs(gset)[i,],
+        source = pData(gset)$source_name_ch1
+    ) %>%
+        ggplot(aes(x = source, y =value)) +
+        geom_boxplot() +
+        theme_bw() +
+        theme(
+            axis.text.x = element_text(angle = 45, hjust = 1),
+            plot.title = element_text(hjust = 0.5)
+        )
+}
+renderPlotly({
+  i = input$glyco_rows_selected
+  makeBoxPlot(gs[i]) + labs(title = fdata_sub$Symbol[i])
+})
+```
+
+## ABCA1
+
+```{r}
+(makeBoxPlot(which(fData(gset)$Symbol == "Abca1")) + 
+  labs(title = "ABCA1")) %>% 
+  ggplotly
+```
+
+## ApoA1
+
+```{r}
+(makeBoxPlot(which(fData(gset)$Symbol == "Apoa1")) + 
+  labs(title = "Apoa1")) %>% 
+  ggplotly
+```
+
+## GALNT
+
+```{r}
+gs2 = grep("galnt", tolower(fData(gset)$Symbol))
+
+fdata_sub2 = fData(gset)[gs2,]
+output$galnt = renderDT(
+  fdata_sub2,
+  selection = list(mode = "single", selected = 1),
+  server=T
+)
+DTOutput("galnt")
+```
+
+```{r}
+renderPlotly({
+  i = input$galnt_rows_selected
+  makeBoxPlot(gs2[i]) + labs(title = fdata_sub2$Symbol[i])
+})
+```
+
