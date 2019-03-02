@@ -1,6 +1,11 @@
 ---
 title: "GSE85718"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapse: false
+      smooth_scroll: false
 runtime: shiny
 ---
 
@@ -118,3 +123,73 @@ renderPlotly({
 })
 ```
 
+<hr />
+
+## 4. St3Gal
+
+There is no St3Gal1 or St3Gal2 in the data, but I found St3Gal3 and 4.
+
+```{r}
+gs3 = grep("st3gal", tolower(fData(gset)$Symbol))
+
+fdata_sub3 = fData(gset)[gs3,]
+output$st3gal = renderDT(
+  fdata_sub3,
+  selection = list(mode = "single", selected = 1),
+  server=T
+)
+DTOutput("st3gal")
+```
+
+```{r}
+renderPlotly({
+  i = input$st3gal_rows_selected
+  makeBoxPlot(gs3[i]) + labs(title = fdata_sub3$Symbol[i])
+})
+```
+
+<hr />
+
+## 6. ST6GalNAc
+
+```{r}
+gs4 = grep("st6galnac", tolower(fData(gset)$Symbol))
+
+fdata_sub4 = fData(gset)[gs4,]
+output$st6galnac = renderDT(
+  fdata_sub4,
+  selection = list(mode = "single", selected = 1),
+  server=T
+)
+DTOutput("st6galnac")
+```
+
+```{r}
+renderPlotly({
+  i = input$st6galnac_rows_selected
+  makeBoxPlot(gs4[i]) + labs(title = fdata_sub4$Symbol[i])
+})
+```
+
+<hr />
+
+## 7. FUT
+
+```{r}
+gs5 = grep("fut", tolower(fData(gset)$Symbol))
+
+fdata_sub5 = fData(gset)[gs5,]
+output$fut = renderDT(
+  fdata_sub5,
+  selection = list(mode = "single", selected = 1),
+  server=T
+)
+DTOutput("fut")
+```
+
+```{r}
+renderPlotly({
+  i = input$fut_rows_selected
+  makeBoxPlot(gs5[i]) + labs(title = fdata_sub5$Symbol[i])
+})
+```
