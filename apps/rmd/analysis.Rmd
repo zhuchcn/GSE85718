@@ -1,7 +1,5 @@
 ---
-title: "GSE"
-author: "Chenghao Zhu"
-date: "3/2/2019"
+title: "GSE85718"
 output: html_document
 runtime: shiny
 ---
@@ -12,6 +10,10 @@ table {
 }
 .datatables {
   overflow: auto;
+}
+
+hr {
+  border-top: solid 1px black;
 }
 </style>
 
@@ -28,16 +30,16 @@ for(pkg in pkgs) library(pkg, character.only = TRUE)
 load("../../GSE85718.rda")
 ```
 
-## Glycosyltransferase
+## 1. Glycosyltransferase
 
-I search on PubMed database, with the keywords **(glycosyltransferases) AND "Mus musculus"**, and downloaded 39 records.
+I search on PubMed database, with the keywords **(glycosyltransferases) AND "Mus musculus"**, and downloaded 39 records. Click on the row to see the boxplot.
 
 ```{r}
 glycotrans_list = read.table("../../glycotransferase_gene_list.txt", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 datatable(glycotrans_list)
 ```
 
-I cross searched those 39 genes in this dataset, and found 10 matches. Below is the feature information data of them.
+I cross searched those **39** genes in this dataset, and found 10 matches. Below is the feature information data of them.
 
 ```{r}
 gs = which(fData(gset)$Symbol %in% glycotrans_list$Symbol)
@@ -71,7 +73,9 @@ renderPlotly({
 })
 ```
 
-## ABCA1
+<hr />
+
+## 2. ABCA1
 
 ```{r}
 (makeBoxPlot(which(fData(gset)$Symbol == "Abca1")) + 
@@ -79,7 +83,9 @@ renderPlotly({
   ggplotly
 ```
 
-## ApoA1
+<hr />
+
+## 3. ApoA1
 
 ```{r}
 (makeBoxPlot(which(fData(gset)$Symbol == "Apoa1")) + 
@@ -87,7 +93,11 @@ renderPlotly({
   ggplotly
 ```
 
-## GALNT
+<hr />
+
+## 4. GALNT
+
+I searched all GALNT in the dataset, and found **26** matches. They all seems to be members of the GALNT gene family. Again, click to see the boxplot
 
 ```{r}
 gs2 = grep("galnt", tolower(fData(gset)$Symbol))
